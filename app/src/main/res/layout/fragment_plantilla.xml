@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="417dp"
+        android:layout_height="555dp"
+        android:layout_marginBottom="1dp"
+        android:background="@drawable/terreno"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+
+        <ImageView
+            android:id="@+id/imgDelantero"
+            android:layout_width="match_parent"
+            android:layout_height="115dp"
+            tools:src="@tools:sample/avatars" />
+
+        <ImageView
+            android:id="@+id/imgMediapunta"
+            android:layout_width="match_parent"
+            android:layout_height="114dp"
+            tools:src="@tools:sample/avatars" />
+
+        <ImageView
+            android:id="@+id/imgMediocentro"
+            android:layout_width="match_parent"
+            android:layout_height="117dp"
+            tools:src="@tools:sample/avatars" />
+
+        <ImageView
+            android:id="@+id/imgDefensa"
+            android:layout_width="match_parent"
+            android:layout_height="114dp"
+            tools:src="@tools:sample/avatars" />
+
+        <ImageView
+            android:id="@+id/imgPortero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:src="@tools:sample/avatars" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="403dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/tvValorEquipo"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvTotalValor"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
