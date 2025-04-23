@@ -28,12 +28,14 @@ public class FragmentSonido extends Fragment {
     private Handler handler = new Handler(Looper.getMainLooper());  //Actualiza el proceso del seekbar
     private Runnable updateSeekBar; //Actualiza el proceso del seekbar
     private EquipoViewModel equipoViewModel; //ViewModel compartido para obetener el equipo y su audio
+    private boolean isPreparado = false;
 
     @Override
     public View onCreateView(LayoutInflater inf, ViewGroup cont, Bundle b) {
         View view = inf.inflate(R.layout.fragment_sonido, cont, false);
         seekBar = view.findViewById(R.id.seekBarAudio);
         btnPlayPause = view.findViewById(R.id.btnPlayPause);
+        btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24);
         return view;
     }
 
@@ -67,24 +69,25 @@ public class FragmentSonido extends Fragment {
             mediaPlayer = MediaPlayer.create(getContext(), audioRes);
 
             mediaPlayer.setOnPreparedListener(mp -> {
-                seekBar.setMax(mp.getDuration());
-                mp.start();
-                btnPlayPause.setImageResource(R.drawable.baseline_pause_24);
-                handler.post(updateSeekBar);
+                seekBar.setMax(mp.getDuration());// solo inicializamos SeekBar, no arrancamos la reproducción
+                isPreparado = true;
             });
 
+            //Se ejecuta cuando mediaplayer termina de reproducir la psita
             mediaPlayer.setOnCompletionListener(mp -> {
                 btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24);
-                handler.removeCallbacks(updateSeekBar);
+                handler.removeCallbacks(updateSeekBar); // Detiene la actualización periódica de la SeekBar
             });
         });
 
-        // 3) Listener del botón Play/Pause fuera del observer, ya que solo cambia estado
+        //Es cuando el usuario pulsa play/pause(boton cambia)
         btnPlayPause.setOnClickListener(btn -> {
-            if (mediaPlayer == null) return;
+            if (mediaPlayer == null || !isPreparado) return;
+
             if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
+                mediaPlayer.pause(); //Si se esta reproduciendo el audio, lo pausamos
                 btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24);
+                handler.removeCallbacks(updateSeekBar);
             } else {
                 mediaPlayer.start();
                 btnPlayPause.setImageResource(R.drawable.baseline_pause_24);
@@ -99,8 +102,8 @@ public class FragmentSonido extends Fragment {
                     mediaPlayer.seekTo(prog);
                 }
             }
-            @Override public void onStartTrackingTouch(SeekBar sb) { }
-            @Override public void onStopTrackingTouch(SeekBar sb) { }
+            @Override public void onStartTrackingTouch(SeekBar sb) { } //Se llama cuando pones el pulgar en la barra para arrastrarla
+            @Override public void onStopTrackingTouch(SeekBar sb) { } //Se llama cuando sueltas el pulgar para terminar de arrastrar la barra
         });
     }
 

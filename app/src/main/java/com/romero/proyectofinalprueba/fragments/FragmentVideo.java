@@ -26,9 +26,7 @@ public class FragmentVideo extends Fragment {
     private EquipoViewModel equipoViewModel;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_video, container, false);
         videoView = view.findViewById(R.id.videoViewEquipo);
         return view;
