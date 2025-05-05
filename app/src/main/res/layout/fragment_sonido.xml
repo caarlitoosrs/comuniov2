@@ -10,6 +10,7 @@
     <SeekBar
         android:id="@+id/seekBarAudio"
         android:layout_width="370dp"
+        android:background="@color/black"
         android:layout_height="36dp" />
 
     <ImageButton
