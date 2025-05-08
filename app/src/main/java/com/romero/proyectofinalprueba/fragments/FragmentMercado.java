@@ -1,6 +1,8 @@
 package com.romero.proyectofinalprueba.fragments;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -49,6 +51,9 @@ public class FragmentMercado extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mercado, container, false);
 
+        SharedPreferences prefs = requireActivity().getSharedPreferences("configuraciones", Context.MODE_PRIVATE);
+        float textoSizeSp = prefs.getFloat("texto_size_sp", 14f);
+
         lista = view.findViewById(R.id.listaMercado);
         cbPorteros = view.findViewById(R.id.checkBoxPortero);
         cbDefensas = view.findViewById(R.id.checkBoxDefensa);
@@ -62,6 +67,7 @@ public class FragmentMercado extends Fragment {
         jugadoresOriginales = new ArrayList<>(daoEscudos.obtenerJugadores());
         jugadores = new ArrayList<>(jugadoresOriginales);
         adapter = new MercadoAdapter(getContext(), jugadores);
+        adapter.setTextSize(textoSizeSp);
         lista.setAdapter(adapter);
 
 
@@ -174,6 +180,10 @@ public class FragmentMercado extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    public void setTextSize(float sizeSp) {
+        adapter.setTextSize(sizeSp);
+        adapter.notifyDataSetChanged();
+    }
 
 
 

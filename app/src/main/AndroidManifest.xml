@@ -13,22 +13,10 @@
         android:theme="@style/Theme.ProyectoFinalPrueba"
         tools:targetApi="31">
         <activity
-            android:name=".models.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity2"
-            android:exported="false" />
-        <activity
-            android:name=".DD"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivityFragments"
-            android:exported="false" />
-        <activity
-            android:name=".MenuFragments"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".SplashScreen"

@@ -19,11 +19,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView escudos, flechaAnt, flechaSig;
-    TextView nombreEsc;
-    ArrayList<Equipo> equipos;
-    int posicionActual=0;
-    DAOEscudos daoEscudos;
+
+    private ImageView escudos, flechaAnt, flechaSig;
+    private TextView nombreEsc;
+    private ArrayList<Equipo> equipos;
+    private int posicionActual = 0;
+    private DAOEscudos daoEscudos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId()==R.id.itemCerrar){
-            finish();
+            finishAffinity();
         }else if(item.getItemId()==R.id.itemTexto){
             //Aqui tenemos que elegir el tamaño de las fuentes, color, etc.
         }

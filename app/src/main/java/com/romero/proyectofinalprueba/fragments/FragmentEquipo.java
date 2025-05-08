@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.romero.proyectofinalprueba.R;
 
@@ -35,5 +36,14 @@ public class FragmentEquipo extends Fragment {
 
 
         return view;
+    }
+
+    public void setTextSize(float sizeSp) {
+        // Por ejemplo, en FragmentMercado:
+        TextView tvPos = getView().findViewById(R.id.tvPosicion);
+        TextView tvNom = getView().findViewById(R.id.tvNombre);
+        tvPos.setTextSize(sizeSp);
+        tvNom.setTextSize(sizeSp);
+        // repite para cada TextView de tu layout
     }
 }

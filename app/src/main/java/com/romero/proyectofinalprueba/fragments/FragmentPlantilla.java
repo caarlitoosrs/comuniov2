@@ -1,5 +1,7 @@
 package com.romero.proyectofinalprueba.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -36,7 +38,10 @@ public class FragmentPlantilla extends Fragment {
         imgPortero = view.findViewById(R.id.imgPortero);
         tvValor = view.findViewById(R.id.tvValorEquipo);
 
+        SharedPreferences prefs = requireActivity().getSharedPreferences("configuraciones", Context.MODE_PRIVATE);
+        float textoSizeSp = prefs.getFloat("texto_size_sp", 18f);
 
+        tvValor.setTextSize(textoSizeSp);
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
@@ -64,16 +69,14 @@ public class FragmentPlantilla extends Fragment {
             }
         });
 
-        //Hacer algo más adelante con las imagenes de los jugadores
-        imgPortero.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
 
         return view;
     }
 
+    public void setTextSize(float sizeSp) {
+        TextView tvValorEquipo = getView().findViewById(R.id.tvValorEquipo);
+        tvValorEquipo.setTextSize(sizeSp);
+    }
 
 }
