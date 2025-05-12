@@ -1,6 +1,8 @@
 package com.romero.proyectofinalprueba;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,7 +13,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
+import com.romero.proyectofinalprueba.fragments.FragmentEquipo;
+import com.romero.proyectofinalprueba.fragments.FragmentMercado;
+import com.romero.proyectofinalprueba.fragments.FragmentPlantilla;
 import com.romero.proyectofinalprueba.models.DAOEscudos;
 import com.romero.proyectofinalprueba.models.Equipo;
 
@@ -19,7 +25,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private float tamanioTexto = 14f;
     private ImageView escudos, flechaAnt, flechaSig;
     private TextView nombreEsc;
     private ArrayList<Equipo> equipos;
@@ -38,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
         daoEscudos = new DAOEscudos();
         equipos = daoEscudos.obtenerEquipos();
+
+        SharedPreferences prefs = getSharedPreferences("configuraciones", MODE_PRIVATE);
+        float textoSizeSp = prefs.getFloat("texto_size_sp", 14f);
+        nombreEsc.setTextSize(textoSizeSp);
 
         actualizarEquipo();
 
@@ -82,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         if(item.getItemId()==R.id.itemCerrar){
             finishAffinity();
         }else if(item.getItemId()==R.id.itemTexto){
-            //Aqui tenemos que elegir el tamaño de las fuentes, color, etc.
+            mostarTamanioDialogo();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -107,5 +117,32 @@ public class MainActivity extends AppCompatActivity {
         nombreEsc.setText(equipoActual.getNombre());
     }
 
+    //---------METODOS PARA EL TAMAÑO DE LAS LETRAS
 
-}
+    private void mostarTamanioDialogo() {
+        String[] opciones = {"+", "-"};
+        new AlertDialog.Builder(this).setTitle("Tamaño de la fuente").setItems(opciones, ((dialog, which) -> {
+            // Aquí ajustamos el tamaño del texto y lo guardamos
+            if (which == 0) {
+                tamanioTexto += 2f;
+            } else {
+                tamanioTexto = Math.max(10f, tamanioTexto - 2f);
+            }
+
+            // Guardar en SharedPreferences el tamaño
+            SharedPreferences prefs = getSharedPreferences("configuraciones", MODE_PRIVATE);
+            prefs.edit().putFloat("texto_size_sp", tamanioTexto).apply();
+
+            // Aplicar el nuevo tamaño al TextView (nombreEsc)
+            aplicarTamanioTexto();
+        })).show();
+    }
+
+    private void aplicarTamanioTexto() {
+        nombreEsc.setTextSize(tamanioTexto);  // Aplicar el tamaño de texto al TextView
+    }
+
+
+    }
+
+

@@ -3,6 +3,7 @@ package com.romero.proyectofinalprueba;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,22 +40,22 @@ public class MainActivityFragments extends AppCompatActivity {
 
         //Recuperar tamaño guardado
         SharedPreferences prefs = getSharedPreferences("configuraciones", MODE_PRIVATE);
-        tamanioTexto = prefs.getFloat("texto_tamanio_sp",18f);
+        tamanioTexto = prefs.getFloat("texto_tamanio_sp", 18f);
 
         setContentView(R.layout.activity_main_fragments);
 
-        btnEquipo=findViewById(R.id.btnEquipo);
-        btnMercado=findViewById(R.id.btnMercado);
-        btnPlantilla=findViewById(R.id.btnPlantilla);
-        imagen=findViewById(R.id.imgEquipoEscogido);
-        nombreEquipo=findViewById(R.id.nombreEquipoEscogido);
-        tvSaldo=findViewById(R.id.saldoInicial);
+        btnEquipo = findViewById(R.id.btnEquipo);
+        btnMercado = findViewById(R.id.btnMercado);
+        btnPlantilla = findViewById(R.id.btnPlantilla);
+        imagen = findViewById(R.id.imgEquipoEscogido);
+        nombreEquipo = findViewById(R.id.nombreEquipoEscogido);
+        tvSaldo = findViewById(R.id.saldoInicial);
 
         daoEscudos = new DAOEscudos();
         equipoViewModel = new ViewModelProvider(this).get(EquipoViewModel.class);
 
         tvSaldo.setText("Saldo: " + saldo + "M");
-        int img  = getIntent().getIntExtra("imgEquipo", 0);
+        int img = getIntent().getIntExtra("imgEquipo", 0);
         String nombre = getIntent().getStringExtra("teamName");
 
         imagen.setImageResource(img);
@@ -77,36 +78,38 @@ public class MainActivityFragments extends AppCompatActivity {
         btnEquipo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 imagen.setVisibility(View.GONE);
                 nombreEquipo.setVisibility(View.GONE);
                 tvSaldo.setVisibility(View.GONE);
+
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentEquipo()).commit();
             }
         });
 
 
         btnMercado.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            imagen.setVisibility(View.GONE);
-            nombreEquipo.setVisibility(View.GONE);
-            tvSaldo.setVisibility(View.VISIBLE);
-            getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentMercado(tvSaldo)).commit();
-        }
-    });
+            @Override
+            public void onClick(View v) {
+                imagen.setVisibility(View.GONE);
+                nombreEquipo.setVisibility(View.GONE);
+                tvSaldo.setVisibility(View.VISIBLE);
+                getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentMercado(tvSaldo)).commit();
+            }
+        });
 
-    btnPlantilla.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            imagen.setVisibility(View.GONE);
-            nombreEquipo.setVisibility(View.GONE);
-            tvSaldo.setVisibility(View.VISIBLE);
-            getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentPlantilla()).commit();
+        btnPlantilla.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagen.setVisibility(View.GONE);
+                nombreEquipo.setVisibility(View.GONE);
+                tvSaldo.setVisibility(View.VISIBLE);
+                getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentPlantilla()).commit();
 
-        }
-    });
+            }
+        });
 
-
+        aplicarTamanioTextos();
 
 
     }
@@ -121,9 +124,9 @@ public class MainActivityFragments extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId()==R.id.itemCerrar){
+        if (item.getItemId() == R.id.itemCerrar) {
             finishAffinity();
-        }else if(item.getItemId()==R.id.itemTexto){
+        } else if (item.getItemId() == R.id.itemTexto) {
             //Aqui tenemos que elegir el tamaño de las fuentes, color, etc.
             mostarTamanioDialogo();
             return true;
@@ -132,16 +135,15 @@ public class MainActivityFragments extends AppCompatActivity {
     }
 
 
-
     //---------METODOS PARA EL TAMAÑO DE LAS LETRAS
 
-    private void mostarTamanioDialogo(){
+    private void mostarTamanioDialogo() {
         String[] opciones = {"+", "-"};
         new AlertDialog.Builder(this).setTitle("Tamaño de la fuente").setItems(opciones, ((dialog, which) -> {
-            if(which==0){
-                tamanioTexto+=2f;
-            }else{
-                tamanioTexto = Math.max(10f, tamanioTexto -2f);
+            if (which == 0) {
+                tamanioTexto += 2f;
+            } else {
+                tamanioTexto = Math.max(10f, tamanioTexto - 2f);
             }
             aplicarTamanioTextos();
 
@@ -152,27 +154,25 @@ public class MainActivityFragments extends AppCompatActivity {
     }
 
 
-    private void aplicarTamanioTextos(){
+    private void aplicarTamanioTextos() {
         // Actividad
         nombreEquipo.setTextSize(tamanioTexto);
         tvSaldo.setTextSize(tamanioTexto);
 
-        // Fragmentos cargados en el contenedor:
-        Fragment frag = getSupportFragmentManager()
-                .findFragmentById(R.id.container_bottom);
-        if (frag instanceof FragmentMercado) {
-            ((FragmentMercado)frag).setTextSize(tamanioTexto);
-        }
-        if (frag instanceof FragmentPlantilla) {
-            ((FragmentPlantilla)frag).setTextSize(tamanioTexto);
-        }
-        if (frag instanceof FragmentEquipo) {
-            // si ese fragmento muestra textos, llámale también
-            ((FragmentEquipo)frag).setTextSize(tamanioTexto);
+        // Obtener todos los fragmentos en el FragmentManager
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment != null) {
+                // Aplicar tamaño de texto si el fragmento tiene el método setTextSize
+                if (fragment instanceof FragmentMercado) {
+                    ((FragmentMercado) fragment).setTextSize(tamanioTexto);
+                } else if (fragment instanceof FragmentPlantilla) {
+                    ((FragmentPlantilla) fragment).setTextSize(tamanioTexto);
+                } else if (fragment instanceof FragmentEquipo) {
+                    ((FragmentEquipo) fragment).setTextSize(tamanioTexto);
+                }
+            }
         }
     }
-
-
 
 
 }

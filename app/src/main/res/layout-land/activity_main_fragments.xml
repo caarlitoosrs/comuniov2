@@ -54,8 +54,8 @@
 
     <FrameLayout
         android:id="@+id/container_bottom"
-        android:layout_width="729dp"
-        android:layout_height="348dp"
+        android:layout_width="723dp"
+        android:layout_height="325dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/container_top"
@@ -80,8 +80,8 @@
 
             <ImageView
                 android:id="@+id/imgEquipoEscogido"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_width="368dp"
+                android:layout_height="222dp"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView

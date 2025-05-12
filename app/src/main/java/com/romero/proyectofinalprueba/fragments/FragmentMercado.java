@@ -181,10 +181,12 @@ public class FragmentMercado extends Fragment {
     }
 
     public void setTextSize(float sizeSp) {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("configuraciones", Context.MODE_PRIVATE);
+        prefs.edit().putFloat("texto_size_sp", sizeSp).apply();
+
         adapter.setTextSize(sizeSp);
         adapter.notifyDataSetChanged();
     }
-
 
 
 

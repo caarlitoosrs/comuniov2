@@ -70,11 +70,14 @@ public class FragmentPlantilla extends Fragment {
         });
 
 
-
         return view;
     }
 
     public void setTextSize(float sizeSp) {
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("configuraciones", Context.MODE_PRIVATE);
+        prefs.edit().putFloat("texto_size_sp", sizeSp).apply();
+
         TextView tvValorEquipo = getView().findViewById(R.id.tvValorEquipo);
         tvValorEquipo.setTextSize(sizeSp);
     }
