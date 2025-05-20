@@ -2,11 +2,11 @@ package com.romero.proyectofinalprueba.models;
 
 public class Equipo {
     private String nombre;
-    private int imagenResId;  // Cambiar de String a int
+    private String imagenResId;  // Cambiar de String a int
     private int cancionResId; // Cambiar de String a int
     private int videoResId;   // Cambiar de String a int
 
-    public Equipo(String nombre, int imagenResId, int cancionResId, int videoResId) {
+    public Equipo(String nombre, String imagenResId, int cancionResId, int videoResId) {
         this.nombre = nombre;
         this.imagenResId = imagenResId;
         this.cancionResId = cancionResId;
@@ -22,11 +22,11 @@ public class Equipo {
         this.nombre = nombre;
     }
 
-    public int getImagenResId() {
+    public String getImagenResId() {
         return imagenResId;
     }
 
-    public void setImagenResId(int imagenResId) {  // Cambiar el tipo a int
+    public void setImagenResId(String imagenResId) {  // Cambiar el tipo a int
         this.imagenResId = imagenResId;
     }
 

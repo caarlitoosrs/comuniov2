@@ -2,14 +2,14 @@ package com.romero.proyectofinalprueba.models;
 
 public class Jugador {
 
-    private int urlImg;
+    private String urlImg;
     private int monedas;
     private int media;
     private String posicion;
     private String nombre;
     private boolean favorito;
 
-    public Jugador(int urlImg, int monedas, int media, String posicion, String nombre) {
+    public Jugador(String urlImg, int monedas, int media, String posicion, String nombre) {
         this.urlImg = urlImg;
         this.monedas = monedas;
         this.media = media;
@@ -18,11 +18,11 @@ public class Jugador {
         this.favorito=false;
     }
 
-    public int getUrlImg() {
+    public String getUrlImg() {
         return urlImg;
     }
 
-    public void setUrlImg(int urlImg) {
+    public void setUrlImg(String urlImg) {
         this.urlImg = urlImg;
     }
 

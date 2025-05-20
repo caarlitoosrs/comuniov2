@@ -62,7 +62,7 @@ public class FragmentMercado extends Fragment {
         cbDelanteros = view.findViewById(R.id.checkBoxDelantero);
         cbFavoritos = view.findViewById(R.id.checkBoxFavoritos);
 
-        daoEscudos = new DAOEscudos();
+        daoEscudos = new DAOEscudos(view.getContext());
         // Crea una copia de la lista original para filtrar sin modificar la fuente
         jugadoresOriginales = new ArrayList<>(daoEscudos.obtenerJugadores());
         jugadores = new ArrayList<>(jugadoresOriginales);

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.romero.proyectofinalprueba.R;
 import com.romero.proyectofinalprueba.models.Jugador;
 import com.romero.proyectofinalprueba.models.ui.main.SharedViewModel;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -53,19 +54,29 @@ public class FragmentPlantilla extends Fragment {
         //Muestra los jugadores comprados y las imágenes
         viewModel.getJugadoresComprados().observe(getViewLifecycleOwner(), jugadores -> {
             if (jugadores.containsKey("Delantero")) {
-                imgDelantero.setImageResource(jugadores.get("Delantero").getUrlImg());
+                Picasso.get()
+                        .load(jugadores.get("Delantero").getUrlImg()) // Aquí se pasa la URL
+                        .into(imgDelantero); // Carga la imagen en el ImageView
             }
             if (jugadores.containsKey("Mediapunta")) {
-                imgMediapunta.setImageResource(jugadores.get("Mediapunta").getUrlImg());
+                Picasso.get()
+                        .load(jugadores.get("Mediapunta").getUrlImg())
+                        .into(imgMediapunta);
             }
             if (jugadores.containsKey("Mediocampista")) {
-                imgMediocentro.setImageResource(jugadores.get("Mediocampista").getUrlImg());
+                Picasso.get()
+                        .load(jugadores.get("Mediocampista").getUrlImg())
+                        .into(imgMediocentro);
             }
             if (jugadores.containsKey("Defensa")) {
-                imgDefensa.setImageResource(jugadores.get("Defensa").getUrlImg());
+                Picasso.get()
+                        .load(jugadores.get("Defensa").getUrlImg())
+                        .into(imgDefensa);
             }
             if (jugadores.containsKey("Portero")) {
-                imgPortero.setImageResource(jugadores.get("Portero").getUrlImg());
+                Picasso.get()
+                        .load(jugadores.get("Portero").getUrlImg())
+                        .into(imgPortero);
             }
         });
 

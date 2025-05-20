@@ -9,16 +9,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.romero.proyectofinalprueba.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class MercadoAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<Jugador> jugadores;//Hay que cambiar el arrayList
+    private ArrayList<Jugador> jugadores;
     private LayoutInflater inflater;
     private float tamanioTexto = 14f;
-
 
     public MercadoAdapter(Context context, ArrayList<Jugador> jugadores) {
         this.context = context;
@@ -48,8 +48,8 @@ public class MercadoAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if(convertView==null){
-            convertView=inflater.inflate(R.layout.item_mercado, parent, false);
+        if(convertView == null){
+            convertView = inflater.inflate(R.layout.item_mercado, parent, false);
         }
 
         ImageView imagenJugador = convertView.findViewById(R.id.imgJugador);
@@ -60,21 +60,25 @@ public class MercadoAdapter extends BaseAdapter {
         ImageView imgFavorito = convertView.findViewById(R.id.imgFavourite);
 
         posicion.setTextSize(tamanioTexto);
-        nombre .setTextSize(tamanioTexto);
-        precio .setTextSize(tamanioTexto);
-        media  .setTextSize(tamanioTexto);
+        nombre.setTextSize(tamanioTexto);
+        precio.setTextSize(tamanioTexto);
+        media.setTextSize(tamanioTexto);
 
         Jugador jugador = jugadores.get(position);
 
-        imagenJugador.setImageResource(jugador.getUrlImg());
+        // Usar Picasso para cargar la imagen desde la URL en lugar de setImageResource
+        Picasso.get()
+                .load(jugador.getUrlImg())  // Cargar la imagen desde la URL
+                .into(imagenJugador);       // Establecer la imagen en el ImageView
+
         posicion.setText(jugador.getPosicion());
         nombre.setText(jugador.getNombre());
-        precio.setText(String.valueOf(jugador.getMonedas())+"M");
-        media.setText(String.valueOf(jugador.getMedia())+"GRL");
+        precio.setText(String.valueOf(jugador.getMonedas()) + "M");
+        media.setText(String.valueOf(jugador.getMedia()) + "GRL");
 
         if(jugador.isFavorito()){
             imgFavorito.setImageResource(R.drawable.baseline_favorite_24);
-        }else{
+        } else {
             imgFavorito.setImageResource(R.drawable.baseline_favorite_border_24);
         }
 
@@ -94,7 +98,4 @@ public class MercadoAdapter extends BaseAdapter {
         jugadores.addAll(nuevaLista); // Agregar nuevos datos
         notifyDataSetChanged(); // Notificar cambios
     }
-
-
-
 }

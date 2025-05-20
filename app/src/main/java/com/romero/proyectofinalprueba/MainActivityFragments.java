@@ -26,6 +26,7 @@ import com.romero.proyectofinalprueba.fragments.FragmentPlantilla;
 import com.romero.proyectofinalprueba.models.DAOEscudos;
 import com.romero.proyectofinalprueba.models.Equipo;
 import com.romero.proyectofinalprueba.models.ui.main.EquipoViewModel;
+import com.squareup.picasso.Picasso;
 
 public class MainActivityFragments extends AppCompatActivity {
 
@@ -53,7 +54,7 @@ public class MainActivityFragments extends AppCompatActivity {
         nombreEquipo = findViewById(R.id.nombreEquipoEscogido);
         tvSaldo = findViewById(R.id.saldoInicial);
 
-        daoEscudos = new DAOEscudos();
+        daoEscudos = new DAOEscudos(this);
         equipoViewModel = new ViewModelProvider(this).get(EquipoViewModel.class);
 
         tvSaldo.setText("Saldo: " + saldo + "M");
@@ -67,24 +68,27 @@ public class MainActivityFragments extends AppCompatActivity {
         for (Equipo e : daoEscudos.obtenerEquipos()) {
             if (e.getNombre().equalsIgnoreCase(nombre)) {
                 seleccionado = e;
-                break;
+                //break
             }
         }
 
         if (seleccionado != null) {
-            // 4) ¡Este es el paso clave!
             //    Alimentas el LiveData del ViewModel con el Equipo elegido
             equipoViewModel.setEquipoSeleccionado(seleccionado);
         }
 
+        //Imagen del escudo despues de seleccionar el equipo
+        Picasso.get().load(seleccionado.getImagenResId()).into(imagen);
+
+
+
+        //------------BOTONES DE LOS FRAGMENTS-------------
         btnEquipo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 imagen.setVisibility(View.GONE);
                 nombreEquipo.setVisibility(View.GONE);
                 tvSaldo.setVisibility(View.GONE);
-
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentEquipo()).commit();
             }
         });
@@ -129,7 +133,6 @@ public class MainActivityFragments extends AppCompatActivity {
         if (item.getItemId() == R.id.itemCerrar) {
             finishAffinity();
         } else if (item.getItemId() == R.id.itemTexto) {
-            //Aqui tenemos que elegir el tamaño de las fuentes, color, etc.
             mostarTamanioDialogo();
             return true;
         }
@@ -157,7 +160,6 @@ public class MainActivityFragments extends AppCompatActivity {
 
 
     private void aplicarTamanioTextos() {
-        // Actividad
         nombreEquipo.setTextSize(tamanioTexto);
         tvSaldo.setTextSize(tamanioTexto);
 

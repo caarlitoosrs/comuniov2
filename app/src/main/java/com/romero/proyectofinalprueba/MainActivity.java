@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.romero.proyectofinalprueba.models.DAOEscudos;
 import com.romero.proyectofinalprueba.models.Equipo;
 import com.romero.proyectofinalprueba.models.Jugador;
+import com.squareup.picasso.Picasso;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         flechaSig = findViewById(R.id.flechaSiguiente);
         nombreEsc = findViewById(R.id.nombreEscudo);
 
-        daoEscudos = new DAOEscudos();
+        daoEscudos = new DAOEscudos(this);
         equipos = daoEscudos.obtenerEquipos();
 
         // Obtener tamaño de texto desde SharedPreferences
@@ -60,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         actualizarEquipo();
 
-        // Llamamos a la tarea para obtener el JSON desde la URL utilizando Volley
-        obtenerJSONConVolley("https://raw.githubusercontent.com/caarlitoosrs/recursos/refs/heads/main/recursos.json");
 
         // Funcionalidad al hacer clic en el escudo y las flechas
         flechaAnt.setOnClickListener(v -> anteriorEquipo());
@@ -108,11 +107,13 @@ public class MainActivity extends AppCompatActivity {
         actualizarEquipo();
     }
 
+    // Cargar la imagen del escudo con Picasso
     private void actualizarEquipo() {
         Equipo equipoActual = equipos.get(posicionActual);
-        escudos.setImageResource(equipoActual.getImagenResId());
+        Picasso.get().load(equipoActual.getImagenResId()).into(escudos);
         nombreEsc.setText(equipoActual.getNombre());
     }
+
 
     // Métodos para el tamaño de las letras
     private void mostarTamanioDialogo() {
@@ -135,41 +136,5 @@ public class MainActivity extends AppCompatActivity {
         nombreEsc.setTextSize(tamanioTexto);
     }
 
-    // Función para obtener el JSON desde la URL utilizando Volley
-    private void obtenerJSONConVolley(String url) {
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                response -> {
-                    deserializarJSON(response.toString());
-                },
-                error -> {
-                    Log.e("Volley Error", error.toString());
-                });
-
-        requestQueue.add(jsonObjectRequest);
-    }
-
-    // Método para deserializar el JSON a objetos de Jugador y Equipo
-    private void deserializarJSON(String json) {
-        Gson gson = new Gson();
-
-        // Deserializamos el JSON en listas de jugadores y equipos
-        EquipoResponse response = gson.fromJson(json, EquipoResponse.class);
-
-
-    }
-
-    public class EquipoResponse {
-        private ArrayList<Equipo> equipos;
-        private ArrayList<Jugador> jugadores;
-
-        public ArrayList<Equipo> getEquipos() {
-            return equipos;
-        }
-
-        public ArrayList<Jugador> getJugadores() {
-            return jugadores;
-        }
-    }
 }
