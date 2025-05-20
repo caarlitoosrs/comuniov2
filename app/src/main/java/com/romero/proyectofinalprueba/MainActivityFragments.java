@@ -1,5 +1,7 @@
 package com.romero.proyectofinalprueba;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;

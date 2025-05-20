@@ -17,7 +17,7 @@ public class DAOEscudos {
     }
 
     private void cargarEquipos() {
-        equipos.add(new Equipo("Alcala", R.drawable.alcala, R.raw.alcala, R.raw.videoalcala));
+       equipos.add(new Equipo("Alcala", R.drawable.alcala, R.raw.alcala, R.raw.videoalcala));
         equipos.add(new Equipo("Arsenal", R.drawable.arsenal, R.raw.arsenal, R.raw.videoarsenal));
         equipos.add(new Equipo("Milan", R.drawable.milan, R.raw.milan, R.raw.videomilan));
         equipos.add(new Equipo("Real Madrid", R.drawable.realmadrid, R.raw.rm, R.raw.videorm));
