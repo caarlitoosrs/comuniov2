@@ -51,31 +51,40 @@ public class MainActivity extends AppCompatActivity {
         flechaSig = findViewById(R.id.flechaSiguiente);
         nombreEsc = findViewById(R.id.nombreEscudo);
 
-        daoEscudos = new DAOEscudos(this);
-        equipos = daoEscudos.obtenerEquipos();
-
         // Obtener tamaño de texto desde SharedPreferences
         SharedPreferences prefs = getSharedPreferences("configuraciones", MODE_PRIVATE);
         float textoSizeSp = prefs.getFloat("texto_size_sp", 14f);
         nombreEsc.setTextSize(textoSizeSp);
 
-        actualizarEquipo();
+        daoEscudos = new DAOEscudos(this);
+
+        // CARGA REMOTA DE DATOS DESDE GITHUB
+        daoEscudos.cargarDatosDesdeGitHub(this, () -> {
+            equipos = daoEscudos.obtenerEquipos();
+
+            if (equipos != null && !equipos.isEmpty()) {
+                actualizarEquipo();
 
 
-        // Funcionalidad al hacer clic en el escudo y las flechas
-        flechaAnt.setOnClickListener(v -> anteriorEquipo());
-        flechaSig.setOnClickListener(v -> siguienteEquipo());
+                flechaAnt.setOnClickListener(v -> anteriorEquipo());
+                flechaSig.setOnClickListener(v -> siguienteEquipo());
 
-        escudos.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MainActivityFragments.class);
-            Equipo equipoActual = equipos.get(posicionActual);
-            intent.putExtra("imgEquipo", equipoActual.getImagenResId());
-            intent.putExtra("teamName", equipoActual.getNombre());
-            startActivity(intent);
+                escudos.setOnClickListener(v -> {
+                    Intent intent = new Intent(MainActivity.this, MainActivityFragments.class);
+                    Equipo equipoActual = equipos.get(posicionActual);
+                    intent.putExtra("imgEquipo", equipoActual.getImagenResId());
+                    intent.putExtra("teamName", equipoActual.getNombre());
+                    startActivity(intent);
+                });
+
+            } else {
+                Log.e("MainActivity", "La lista de equipos está vacía.");
+            }
         });
     }
 
-    // Menú
+
+    // ------MENU-------
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -110,7 +119,16 @@ public class MainActivity extends AppCompatActivity {
     // Cargar la imagen del escudo con Picasso
     private void actualizarEquipo() {
         Equipo equipoActual = equipos.get(posicionActual);
-        Picasso.get().load(equipoActual.getImagenResId()).into(escudos);
+
+        // Convertir el nombre del recurso String a ID int
+        int resId = getResources().getIdentifier(
+                equipoActual.getImagenResId(),
+                "drawable",
+                getPackageName()
+        );
+
+        Picasso.get().load(resId).into(escudos);
+
         nombreEsc.setText(equipoActual.getNombre());
     }
 

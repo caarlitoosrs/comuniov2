@@ -3,16 +3,18 @@ package com.romero.proyectofinalprueba.models;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.romero.proyectofinalprueba.R;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
 
 public class DAOEscudos {
 
@@ -22,81 +24,53 @@ public class DAOEscudos {
     public DAOEscudos(Context context) {
         this.equipos = new ArrayList<>();
         this.jugador = new ArrayList<>();
-        cargarEquipos(context);
-        cargarJugadores(context);
     }
 
-    private void cargarJugadores(Context context) {
-        try {
-            String json = leerJSONDesdeRaw(context, "jugadores");  // Cambié este método para usar "raw"
-            if (json != null) {
-                Log.d("DAOEscudos", "JSON de jugadores cargado correctamente");
-                Gson gson = new Gson();
-                Type tipoLista = new TypeToken<ArrayList<Jugador>>() {
-                }.getType();
-                jugador = gson.fromJson(json, tipoLista);
-                if (jugador == null) {
-                    Log.e("DAOEscudos", "Error al deserializar jugadores, la lista es null.");
-                    jugador = new ArrayList<>(); // Inicializa la lista vacía
-                }
-            } else {
-                Log.e("DAOEscudos", "No se pudo cargar el JSON de jugadores.");
-            }
-        } catch (Exception e) {
-            Log.e("DAOEscudos", "Error al cargar jugadores", e);
-        }
-    }
+    // Método para iniciar la carga remota del JSON
+    public void cargarDatosDesdeGitHub(Context context, Runnable onFinish) {
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "https://raw.githubusercontent.com/caarlitoosrs/recursos/refs/heads/main/recursos.json";
 
-    private void cargarEquipos(Context context) {
-        try {
-            String json = leerJSONDesdeRaw(context, "equipos");  // Cambié este método para usar "raw"
-            if (json != null) {
-                Log.d("DAOEscudos", "JSON de equipos cargado correctamente");
-                Gson gson = new Gson();
-                Type tipoLista = new TypeToken<ArrayList<EquipoJSON>>() {
-                }.getType();
-                List<EquipoJSON> lista = gson.fromJson(json, tipoLista);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        Gson gson = new Gson();
 
-                if (lista != null) {
-                    for (EquipoJSON e : lista) {
-                        int cancion = getResId(context, e.cancionResId, "raw");
-                        int video = getResId(context, e.videoResId, "raw");
-                        equipos.add(new Equipo(e.nombre, e.imagenResId, cancion, video));
+                        JSONArray equiposArray = response.getJSONArray("equipos");
+                        Type tipoListaEquipos = new TypeToken<ArrayList<EquipoJSON>>() {
+                        }.getType();
+                        List<EquipoJSON> listaEquiposJson = gson.fromJson(equiposArray.toString(), tipoListaEquipos);
+                        equipos.clear();
+                        for (EquipoJSON e : listaEquiposJson) {
+                            int cancion = getResId(context, e.cancionResId, "raw");
+                            int video = getResId(context, e.videoResId, "raw");
+                            equipos.add(new Equipo(e.nombre, e.imagenResId, cancion, video));
+                        }
+
+
+                        JSONArray jugadoresArray = response.getJSONArray("jugadores");
+                        Type tipoListaJugadores = new TypeToken<ArrayList<Jugador>>() {
+                        }.getType();
+                        jugador = gson.fromJson(jugadoresArray.toString(), tipoListaJugadores);
+                        if (jugador == null) {
+                            jugador = new ArrayList<>();
+                        }
+
+                        if (onFinish != null) onFinish.run();
+
+                    } catch (Exception e) {
                     }
-                    Log.d("DAOEscudos", "Equipos cargados correctamente: " + equipos.size() + " equipos.");
-                } else {
-                    Log.e("DAOEscudos", "Error al deserializar los equipos, la lista es null.");
-                    equipos = new ArrayList<>(); // Inicializa la lista vacía
-                }
-            } else {
-                Log.e("DAOEscudos", "No se pudo cargar el JSON de equipos.");
-            }
-        } catch (Exception e) {
-            Log.e("DAOEscudos", "Error al cargar equipos", e);
-        }
+                },
+                error -> Log.e("DAOEscudos", "Error al descargar JSON desde GitHub", error)
+        );
+
+        queue.add(jsonObjectRequest);
     }
 
-    private String leerJSONDesdeRaw(Context context, String archivo) {
-        try {
-            // Usamos openRawResource para leer los archivos de res/raw
-            InputStream is = context.getResources().openRawResource(
-                    context.getResources().getIdentifier(archivo, "raw", context.getPackageName()));
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            return new String(buffer, StandardCharsets.UTF_8);
-        } catch (IOException ex) {
-            Log.e("DAOEscudos", "Error al leer el archivo JSON desde raw: " + archivo, ex);
-            return null;
-        }
-    }
-
+    // Método auxiliar para obtener el ID de recurso a partir de su nombre
     private int getResId(Context context, String name, String tipo) {
         int resId = context.getResources().getIdentifier(name, tipo, context.getPackageName());
-        if (resId == 0) {
-            Log.e("DAOEscudos", "No se encontró el recurso con el nombre: " + name);
-        }
         return resId;
     }
 

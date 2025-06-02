@@ -2,9 +2,9 @@ package com.romero.proyectofinalprueba.models;
 
 public class Equipo {
     private String nombre;
-    private String imagenResId;  // Cambiar de String a int
-    private int cancionResId; // Cambiar de String a int
-    private int videoResId;   // Cambiar de String a int
+    private String imagenResId;
+    private int cancionResId;
+    private int videoResId;
 
     public Equipo(String nombre, String imagenResId, int cancionResId, int videoResId) {
         this.nombre = nombre;
@@ -13,7 +13,6 @@ public class Equipo {
         this.videoResId = videoResId;
     }
 
-    // Getters y Setters
     public String getNombre() {
         return nombre;
     }
@@ -26,7 +25,7 @@ public class Equipo {
         return imagenResId;
     }
 
-    public void setImagenResId(String imagenResId) {  // Cambiar el tipo a int
+    public void setImagenResId(String imagenResId) {
         this.imagenResId = imagenResId;
     }
 
@@ -34,7 +33,7 @@ public class Equipo {
         return cancionResId;
     }
 
-    public void setCancionResId(int cancionResId) {  // Cambiar el tipo a int
+    public void setCancionResId(int cancionResId) {
         this.cancionResId = cancionResId;
     }
 
@@ -42,7 +41,7 @@ public class Equipo {
         return videoResId;
     }
 
-    public void setVideoResId(int videoResId) {  // Cambiar el tipo a int
+    public void setVideoResId(int videoResId) {
         this.videoResId = videoResId;
     }
 }

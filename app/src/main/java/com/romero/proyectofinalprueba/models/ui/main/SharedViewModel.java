@@ -9,11 +9,15 @@ import androidx.lifecycle.ViewModel;
 import com.romero.proyectofinalprueba.models.Jugador;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SharedViewModel extends ViewModel {
     private MutableLiveData<Integer> saldoActual = new MutableLiveData<>(200);
     private MutableLiveData<Integer> valorTotalEquipo = new MutableLiveData<>(0);
     private final MutableLiveData<HashMap<String, Jugador>> jugadoresComprados = new MutableLiveData<>(new HashMap<>());
+    private final MutableLiveData<Set<String>> filtrosSeleccionados = new MutableLiveData<>(new HashSet<>());
+
 
     public LiveData<Integer> getSaldoActual() {
         return saldoActual;
@@ -43,5 +47,13 @@ public class SharedViewModel extends ViewModel {
             int nuevoValorTotal = valorTotalEquipo.getValue() + jugador.getMonedas();
             valorTotalEquipo.setValue(nuevoValorTotal);
         }
+    }
+
+    public LiveData<Set<String>> getFiltrosSeleccionados() {
+        return filtrosSeleccionados;
+    }
+
+    public void setFiltrosSeleccionados(Set<String> filtros) {
+        filtrosSeleccionados.setValue(filtros);
     }
 }

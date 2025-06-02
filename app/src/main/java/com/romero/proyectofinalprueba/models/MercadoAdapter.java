@@ -48,7 +48,7 @@ public class MercadoAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if(convertView == null){
+        if (convertView == null) {
             convertView = inflater.inflate(R.layout.item_mercado, parent, false);
         }
 
@@ -66,36 +66,32 @@ public class MercadoAdapter extends BaseAdapter {
 
         Jugador jugador = jugadores.get(position);
 
-        // Usar Picasso para cargar la imagen desde la URL en lugar de setImageResource
-        Picasso.get()
-                .load(jugador.getUrlImg())  // Cargar la imagen desde la URL
-                .into(imagenJugador);       // Establecer la imagen en el ImageView
+
+        String imageUrl = jugador.getUrlImg();
+        if (imageUrl.contains("github.com")) {
+            imageUrl = imageUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+        }
+
+        Picasso.get().load(imageUrl).into(imagenJugador);
+
 
         posicion.setText(jugador.getPosicion());
         nombre.setText(jugador.getNombre());
-        precio.setText(String.valueOf(jugador.getMonedas()) + "M");
-        media.setText(String.valueOf(jugador.getMedia()) + "GRL");
+        precio.setText(jugador.getMonedas() + "M");
+        media.setText(jugador.getMedia() + "GRL");
 
-        if(jugador.isFavorito()){
+        if (jugador.isFavorito()) {
             imgFavorito.setImageResource(R.drawable.baseline_favorite_24);
         } else {
             imgFavorito.setImageResource(R.drawable.baseline_favorite_border_24);
         }
 
-        imgFavorito.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                jugador.setFavorito(!jugador.isFavorito());
-                notifyDataSetChanged();
-            }
+        imgFavorito.setOnClickListener(v -> {
+            jugador.setFavorito(!jugador.isFavorito());
+            notifyDataSetChanged();
         });
 
         return convertView;
     }
 
-    public void actualizarLista(ArrayList<Jugador> nuevaLista) {
-        jugadores.clear();  // Limpiar la lista actual
-        jugadores.addAll(nuevaLista); // Agregar nuevos datos
-        notifyDataSetChanged(); // Notificar cambios
-    }
 }

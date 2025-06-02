@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,7 +27,10 @@ import com.romero.proyectofinalprueba.fragments.FragmentPlantilla;
 import com.romero.proyectofinalprueba.models.DAOEscudos;
 import com.romero.proyectofinalprueba.models.Equipo;
 import com.romero.proyectofinalprueba.models.ui.main.EquipoViewModel;
+import com.romero.proyectofinalprueba.models.ui.main.SharedViewModel;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 public class MainActivityFragments extends AppCompatActivity {
 
@@ -36,12 +40,12 @@ public class MainActivityFragments extends AppCompatActivity {
     private int saldo = 200;
     DAOEscudos daoEscudos;
     EquipoViewModel equipoViewModel;
+    SharedViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Recuperar tamaño guardado
         SharedPreferences prefs = getSharedPreferences("configuraciones", MODE_PRIVATE);
         tamanioTexto = prefs.getFloat("texto_tamanio_sp", 18f);
 
@@ -54,71 +58,84 @@ public class MainActivityFragments extends AppCompatActivity {
         nombreEquipo = findViewById(R.id.nombreEquipoEscogido);
         tvSaldo = findViewById(R.id.saldoInicial);
 
-        daoEscudos = new DAOEscudos(this);
         equipoViewModel = new ViewModelProvider(this).get(EquipoViewModel.class);
 
-        tvSaldo.setText("Saldo: " + saldo + "M");
         int img = getIntent().getIntExtra("imgEquipo", 0);
         String nombre = getIntent().getStringExtra("teamName");
 
-        imagen.setImageResource(img);
-        nombreEquipo.setText(nombre);
+        daoEscudos = new DAOEscudos(this);
+        daoEscudos.cargarDatosDesdeGitHub(this, () -> {
+            ArrayList<Equipo> equipos = daoEscudos.obtenerEquipos();
 
-        Equipo seleccionado = null;
-        for (Equipo e : daoEscudos.obtenerEquipos()) {
-            if (e.getNombre().equalsIgnoreCase(nombre)) {
-                seleccionado = e;
-                //break
+            // Buscar equipo por nombre
+            Equipo seleccionado = null;
+            for (Equipo e : equipos) {
+                if (e.getNombre().equalsIgnoreCase(nombre)) {
+                    seleccionado = e;
+                    break;
+                }
             }
-        }
 
-        if (seleccionado != null) {
-            //    Alimentas el LiveData del ViewModel con el Equipo elegido
-            equipoViewModel.setEquipoSeleccionado(seleccionado);
-        }
+            if (seleccionado != null) {
+                equipoViewModel.setEquipoSeleccionado(seleccionado);
+                equipoViewModel.setListaJugadores(daoEscudos.obtenerJugadores());
+                nombreEquipo.setText(seleccionado.getNombre());
 
-        //Imagen del escudo despues de seleccionar el equipo
-        Picasso.get().load(seleccionado.getImagenResId()).into(imagen);
+                int resId = getResources().getIdentifier(seleccionado.getImagenResId(), "drawable", getPackageName());
+                if (resId != 0) {
+                    Picasso.get().load(resId).into(imagen);
+                } else {
+                    Log.e("MainActivityFragments", "Imagen no encontrada: " + seleccionado.getImagenResId());
+                    imagen.setImageResource(R.drawable.baseline_favorite_border_24);
+                }
+            }
+
+
+            equipoViewModel = new ViewModelProvider(this).get(EquipoViewModel.class);
+            viewModel = new ViewModelProvider(this).get(SharedViewModel.class); //
 
 
 
-        //------------BOTONES DE LOS FRAGMENTS-------------
-        btnEquipo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            tvSaldo.setText("Saldo: " + saldo + "M");
+
+            viewModel.getSaldoActual().observe(this, saldo -> {
+                tvSaldo.setText("Saldo: " + saldo + "M");
+            });
+
+
+
+            // Botones fragmentos
+            btnEquipo.setOnClickListener(v -> {
                 imagen.setVisibility(View.GONE);
                 nombreEquipo.setVisibility(View.GONE);
                 tvSaldo.setVisibility(View.GONE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentEquipo()).commit();
-            }
-        });
+            });
 
-
-        btnMercado.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            btnMercado.setOnClickListener(v -> {
                 imagen.setVisibility(View.GONE);
                 nombreEquipo.setVisibility(View.GONE);
                 tvSaldo.setVisibility(View.VISIBLE);
-                getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentMercado(tvSaldo)).commit();
-            }
-        });
+                getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentMercado()).commit();
+            });
 
-        btnPlantilla.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            btnPlantilla.setOnClickListener(v -> {
                 imagen.setVisibility(View.GONE);
                 nombreEquipo.setVisibility(View.GONE);
                 tvSaldo.setVisibility(View.VISIBLE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_bottom, new FragmentPlantilla()).commit();
+            });
 
-            }
+            aplicarTamanioTextos();
         });
 
-        aplicarTamanioTextos();
 
 
     }
+
+
+
+
 
     //--------------MENÚ----------------------
     @Override
@@ -140,7 +157,7 @@ public class MainActivityFragments extends AppCompatActivity {
     }
 
 
-    //---------METODOS PARA EL TAMAÑO DE LAS LETRAS
+    //---------METODOS PARA EL TAMAÑO DE LAS LETRAS-------------
 
     private void mostarTamanioDialogo() {
         String[] opciones = {"+", "-"};
@@ -171,8 +188,6 @@ public class MainActivityFragments extends AppCompatActivity {
                     ((FragmentMercado) fragment).setTextSize(tamanioTexto);
                 } else if (fragment instanceof FragmentPlantilla) {
                     ((FragmentPlantilla) fragment).setTextSize(tamanioTexto);
-                } else if (fragment instanceof FragmentEquipo) {
-                    ((FragmentEquipo) fragment).setTextSize(tamanioTexto);
                 }
             }
         }

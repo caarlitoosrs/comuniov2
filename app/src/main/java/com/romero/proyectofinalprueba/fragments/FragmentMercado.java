@@ -8,47 +8,39 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.romero.proyectofinalprueba.R;
-import com.romero.proyectofinalprueba.models.DAOEscudos;
 import com.romero.proyectofinalprueba.models.Jugador;
 import com.romero.proyectofinalprueba.models.MercadoAdapter;
+import com.romero.proyectofinalprueba.models.ui.main.EquipoViewModel;
 import com.romero.proyectofinalprueba.models.ui.main.SharedViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class FragmentMercado extends Fragment {
 
     private ListView lista;
     private ArrayList<Jugador> jugadoresOriginales;
-    private ArrayList<Jugador> jugadores; // Lista que se muestra en el adaptador
+    private ArrayList<Jugador> jugadores;
     private MercadoAdapter adapter;
-    private DAOEscudos daoEscudos;
     private SharedViewModel viewModel;
     private TextView saldoTextView;
-    private int saldoActual;
     private CheckBox cbPorteros, cbDefensas, cbMediocentros, cbMediapuntas, cbDelanteros, cbFavoritos;
 
-    public FragmentMercado(TextView saldoTextView) {
-        this.saldoTextView = saldoTextView;
+    public FragmentMercado() {
     }
 
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mercado, container, false);
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("configuraciones", Context.MODE_PRIVATE);
@@ -62,37 +54,49 @@ public class FragmentMercado extends Fragment {
         cbDelanteros = view.findViewById(R.id.checkBoxDelantero);
         cbFavoritos = view.findViewById(R.id.checkBoxFavoritos);
 
-        daoEscudos = new DAOEscudos(view.getContext());
-        // Crea una copia de la lista original para filtrar sin modificar la fuente
-        jugadoresOriginales = new ArrayList<>(daoEscudos.obtenerJugadores());
+        EquipoViewModel equipoViewModel = new ViewModelProvider(requireActivity()).get(EquipoViewModel.class);
+        ArrayList<Jugador> listaJugadores = equipoViewModel.getListaJugadores();
+
+        jugadoresOriginales = new ArrayList<>(listaJugadores);
         jugadores = new ArrayList<>(jugadoresOriginales);
+
         adapter = new MercadoAdapter(getContext(), jugadores);
         adapter.setTextSize(textoSizeSp);
         lista.setAdapter(adapter);
 
+        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        //CONVIERTE LA CADENA Y LO ALMACENA EN SALDO ACTUAL
-        saldoActual = Integer.parseInt(saldoTextView.getText().toString().replace("Saldo: ", "").replace("M", "").trim());
-
-        //OBTIENE EL VIEWMODEL ASOCIADO A LA ACTIVIDAD PARA QUE OTROS FRAGMENTOS ACCEDAN A LOS DATOS
-        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
-        //REPRESENTA EL SALDO ACTUAL (DEVUELVE UN LIVEDATA<INTEGER>)
         viewModel.getSaldoActual().observe(getViewLifecycleOwner(), saldo -> {
-            saldoTextView.setText("Saldo: " + saldo + "M");
+            if (saldoTextView != null) {
+                saldoTextView.setText("Saldo: " + saldo + "M");
+            }
         });
 
-        cbPorteros.setOnClickListener(v -> filtrarJugadores());
-        cbDefensas.setOnClickListener(v -> filtrarJugadores());
-        cbMediocentros.setOnClickListener(v -> filtrarJugadores());
-        cbMediapuntas.setOnClickListener(v -> filtrarJugadores());
-        cbDelanteros.setOnClickListener(v -> filtrarJugadores());
+        viewModel.getFiltrosSeleccionados().observe(getViewLifecycleOwner(), filtros -> {
+            cbPorteros.setChecked(filtros.contains("portero"));
+            cbDefensas.setChecked(filtros.contains("defensa"));
+            cbMediocentros.setChecked(filtros.contains("mediocampista"));
+            cbMediapuntas.setChecked(filtros.contains("mediapunta"));
+            cbDelanteros.setChecked(filtros.contains("delantero"));
+            cbFavoritos.setChecked(filtros.contains("favorito"));
+            filtrarJugadores();
+        });
 
-        //HACER CLICK EN LA LISTA
+        View.OnClickListener filtroListener = v -> {
+            filtrarJugadores();
+            guardarFiltrosSeleccionadosEnViewModel();
+        };
+
+        cbPorteros.setOnClickListener(filtroListener);
+        cbDefensas.setOnClickListener(filtroListener);
+        cbMediocentros.setOnClickListener(filtroListener);
+        cbMediapuntas.setOnClickListener(filtroListener);
+        cbDelanteros.setOnClickListener(filtroListener);
+        cbFavoritos.setOnClickListener(filtroListener);
+
         lista.setOnItemClickListener((parent, view1, position, id) -> {
             Jugador jugadorSeleccionado = jugadores.get(position);
 
-            //PARA QUE NO SE REPITA UNA POSICIÓN QUE YA TIENES
             if (viewModel.getJugadoresComprados().getValue().containsKey(jugadorSeleccionado.getPosicion())) {
                 new AlertDialog.Builder(view1.getContext())
                         .setTitle("Jugador ya comprado")
@@ -102,21 +106,18 @@ public class FragmentMercado extends Fragment {
                 return;
             }
 
-            //COMPRAR AL JUGADOR Y ACTUALIZAR EL SALDO
             new AlertDialog.Builder(view1.getContext())
                     .setTitle("¿Quieres comprar a " + jugadorSeleccionado.getNombre() + "?")
-                    .setMessage("VALOR: " + jugadorSeleccionado.getMonedas() + "M" + "\n" +
-                            "MEDIA: " + jugadorSeleccionado.getMedia() + "GRL" + "\n" +
+                    .setMessage("VALOR: " + jugadorSeleccionado.getMonedas() + "M\n" +
+                            "MEDIA: " + jugadorSeleccionado.getMedia() + "GRL\n" +
                             "Posición: " + jugadorSeleccionado.getPosicion())
                     .setPositiveButton("Cerrar", null)
                     .setNegativeButton("Comprar", (dialog, which) -> {
-
                         Integer saldoActualizado = viewModel.getSaldoActual().getValue();
                         if (saldoActualizado >= jugadorSeleccionado.getMonedas()) {
                             int nuevoSaldo = saldoActualizado - jugadorSeleccionado.getMonedas();
                             viewModel.actualizarSaldo(nuevoSaldo);
                             viewModel.agregarJugador(jugadorSeleccionado.getPosicion(), jugadorSeleccionado);
-
                         } else {
                             new AlertDialog.Builder(view1.getContext())
                                     .setTitle("Saldo insuficiente")
@@ -127,67 +128,49 @@ public class FragmentMercado extends Fragment {
                     }).show();
         });
 
-
         return view;
     }
 
     private void filtrarJugadores() {
         ArrayList<Jugador> jugadoresFiltrados = new ArrayList<>();
 
-        // Detectar si se ha seleccionado algún filtro de posición, si se pulsa al menos 1 es "true"
         boolean filtroPosicion = cbPorteros.isChecked() || cbDefensas.isChecked() ||
                 cbMediocentros.isChecked() || cbMediapuntas.isChecked() ||
                 cbDelanteros.isChecked();
 
-        // Recorrer la lista original para aplicar los filtros
         for (Jugador jugador : jugadoresOriginales) {
-            // Si se ha marcado el filtro de favoritos y el jugador no es favorito, lo descartamos
-            if (cbFavoritos.isChecked() && !jugador.isFavorito()) {
-                continue;
-            }
+            if (cbFavoritos.isChecked() && !jugador.isFavorito()) continue;
 
-            // Si se seleccionó algún filtro de posición, verificar si el jugador cumple alguna condición
-            if (filtroPosicion) {
-                boolean cumplePosicion = false;
-                if (cbPorteros.isChecked() && jugador.getPosicion().equalsIgnoreCase("portero")) {
-                    cumplePosicion = true;
-                }
-                if (cbDefensas.isChecked() && jugador.getPosicion().equalsIgnoreCase("defensa")) {
-                    cumplePosicion = true;
-                }
-                if (cbMediocentros.isChecked() && jugador.getPosicion().equalsIgnoreCase("mediocampista")) {
-                    cumplePosicion = true;
-                }
-                if (cbMediapuntas.isChecked() && jugador.getPosicion().equalsIgnoreCase("mediapunta")) {
-                    cumplePosicion = true;
-                }
-                if (cbDelanteros.isChecked() && jugador.getPosicion().equalsIgnoreCase("delantero")) {
-                    cumplePosicion = true;
-                }
+            boolean cumplePosicion = !filtroPosicion ||
+                    (cbPorteros.isChecked() && jugador.getPosicion().equalsIgnoreCase("portero")) ||
+                    (cbDefensas.isChecked() && jugador.getPosicion().equalsIgnoreCase("defensa")) ||
+                    (cbMediocentros.isChecked() && jugador.getPosicion().equalsIgnoreCase("mediocampista")) ||
+                    (cbMediapuntas.isChecked() && jugador.getPosicion().equalsIgnoreCase("mediapunta")) ||
+                    (cbDelanteros.isChecked() && jugador.getPosicion().equalsIgnoreCase("delantero"));
 
-                if (cumplePosicion) {
-                    jugadoresFiltrados.add(jugador);
-                }
-            } else {
-                // Si no hay filtro de posición, agregamos el jugador (ya sea que solo se filtre por favoritos o ninguno)
-                jugadoresFiltrados.add(jugador);
-            }
+            if (cumplePosicion) jugadoresFiltrados.add(jugador);
         }
 
-        // Actualizar la lista que usa el adaptador
         jugadores.clear();
         jugadores.addAll(jugadoresFiltrados);
         adapter.notifyDataSetChanged();
     }
 
+    private void guardarFiltrosSeleccionadosEnViewModel() {
+        Set<String> filtros = new HashSet<>();
+        if (cbPorteros.isChecked()) filtros.add("portero");
+        if (cbDefensas.isChecked()) filtros.add("defensa");
+        if (cbMediocentros.isChecked()) filtros.add("mediocampista");
+        if (cbMediapuntas.isChecked()) filtros.add("mediapunta");
+        if (cbDelanteros.isChecked()) filtros.add("delantero");
+        if (cbFavoritos.isChecked()) filtros.add("favorito");
+        viewModel.setFiltrosSeleccionados(filtros);
+    }
+
     public void setTextSize(float sizeSp) {
         SharedPreferences prefs = requireActivity().getSharedPreferences("configuraciones", Context.MODE_PRIVATE);
         prefs.edit().putFloat("texto_size_sp", sizeSp).apply();
-
         adapter.setTextSize(sizeSp);
         adapter.notifyDataSetChanged();
     }
-
-
-
 }
