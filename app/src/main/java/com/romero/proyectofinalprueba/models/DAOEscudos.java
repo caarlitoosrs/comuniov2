@@ -68,7 +68,7 @@ public class DAOEscudos {
         queue.add(jsonObjectRequest);
     }
 
-    // Método auxiliar para obtener el ID de recurso a partir de su nombre
+    // Método para obtener el ID de recurso a partir de su nombre
     private int getResId(Context context, String name, String tipo) {
         int resId = context.getResources().getIdentifier(name, tipo, context.getPackageName());
         return resId;

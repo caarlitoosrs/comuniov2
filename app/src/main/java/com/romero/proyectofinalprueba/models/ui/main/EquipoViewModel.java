@@ -30,7 +30,4 @@ public class EquipoViewModel extends ViewModel {
         return jugadores.getValue();
     }
 
-    public LiveData<ArrayList<Jugador>> getJugadoresLive() {
-        return jugadores;
-    }
 }

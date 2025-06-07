@@ -22,17 +22,11 @@ public class Jugador {
         return urlImg;
     }
 
-    public void setUrlImg(String urlImg) {
-        this.urlImg = urlImg;
-    }
 
     public int getMonedas() {
         return monedas;
     }
 
-    public void setMonedas(int monedas) {
-        this.monedas = monedas;
-    }
 
     public int getMedia() {
         return media;
@@ -46,16 +40,9 @@ public class Jugador {
         return posicion;
     }
 
-    public void setPosicion(String posicion) {
-        this.posicion = posicion;
-    }
 
     public String getNombre() {
         return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
     }
 
     public boolean isFavorito() {

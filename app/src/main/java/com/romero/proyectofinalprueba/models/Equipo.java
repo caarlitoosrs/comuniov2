@@ -25,23 +25,14 @@ public class Equipo {
         return imagenResId;
     }
 
-    public void setImagenResId(String imagenResId) {
-        this.imagenResId = imagenResId;
-    }
 
     public int getCancionResId() {
         return cancionResId;
     }
 
-    public void setCancionResId(int cancionResId) {
-        this.cancionResId = cancionResId;
-    }
 
     public int getVideoResId() {
         return videoResId;
     }
 
-    public void setVideoResId(int videoResId) {
-        this.videoResId = videoResId;
-    }
 }
